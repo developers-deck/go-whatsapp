@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = true
+	symlinks = false
+	ignorecase = true
+	longpaths = true
+[remote "origin"]
+	url = https://github.com/spf13/viper
+	fetch = +refs/heads/*:refs/remotes/origin/*
