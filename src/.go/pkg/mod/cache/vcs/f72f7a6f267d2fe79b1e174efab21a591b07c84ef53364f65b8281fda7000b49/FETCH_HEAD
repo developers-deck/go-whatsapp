@@ -1,1 +1,10 @@
-405cb3bdea78b1b48ee79096733841247a944de0		tag 'v0.19.0' of https://go.googlesource.com/crypto
+9e8e0b390897c84cad53ebe9ed2d1d331a5394d9	not-for-merge	branch 'internal-branch.go1.16-vendor' of https://go.googlesource.com/crypto
+cf75a172585e01ce0bf0fac704ecd21d30af3fba	not-for-merge	branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/crypto
+e495a2d5b3d3be43468d0ebb413f46eeaedf7eb3	not-for-merge	branch 'internal-branch.go1.18-vendor' of https://go.googlesource.com/crypto
+403b01795ae8c2bc74ff210a1d6ce91e8dd5ea57	not-for-merge	branch 'internal-branch.go1.19-vendor' of https://go.googlesource.com/crypto
+2c476679df9a5c6279ec05b48165f4bed48b792e	not-for-merge	branch 'internal-branch.go1.20-vendor' of https://go.googlesource.com/crypto
+2e82bdd1719d8f50d18bbb60acc52accc71330b1	not-for-merge	branch 'internal-branch.go1.21-vendor' of https://go.googlesource.com/crypto
+ef5341b70697ceb55f904384bd982587224e8b0c	not-for-merge	branch 'master' of https://go.googlesource.com/crypto
+8b5121be2f68d8fc40bb06467003bdde1040a094	not-for-merge	branch 'release-branch.go1.13' of https://go.googlesource.com/crypto
+69ecbb4d6d5dab05e49161c6e77ea40a030884e1	not-for-merge	branch 'release-branch.go1.14' of https://go.googlesource.com/crypto
+75b288015ac94e66e3d6715fb68a9b41bf046ec2	not-for-merge	branch 'release-branch.go1.15' of https://go.googlesource.com/crypto

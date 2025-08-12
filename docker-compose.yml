@@ -1,15 +1,279 @@
+version: '3.8'
+
 services:
-  whatsapp_go:
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "200k"
-        max-file: "10"
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: whatsapp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: whatsapp_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - whatsapp_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d whatsapp_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Redis Cache (Using Upstash Redis)
+  # Note: This service is optional since you're using Upstash Redis
+  # Uncomment if you want to run Redis locally instead
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: whatsapp_redis
+  #   restart: unless-stopped
+  #   command: redis-server --requirepass redis_secure_2024 --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+  #   volumes:
+  #     - redis_data:/data
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - whatsapp_network
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
+
+  # WhatsApp API Application
+  whatsapp_api:
     build:
       context: .
       dockerfile: ./docker/golang.Dockerfile
-    restart: "on-failure"
+    container_name: whatsapp_api
+    restart: unless-stopped
     ports:
       - "3000:3000"
-    env_file:
-      - src/.env
+    environment:
+      # Application Settings
+      - APP_PORT=3000
+      - APP_DEBUG=false
+      - APP_OS=Chrome
+      - APP_BASIC_AUTH=admin:admin,user:password
+      - APP_BASE_PATH=
+      
+      # MCP Server Settings
+      - MCP_PORT=8080
+      - MCP_HOST=localhost
+      
+      # Database Configuration
+      - DB_URI=postgres://postgres:password@postgres:5432/whatsapp_db?sslmode=disable
+      - DB_KEYS_URI=postgres://postgres:password@postgres:5432/whatsapp_keys?sslmode=disable
+      
+      # Chat Storage Configuration
+      - CHAT_STORAGE_TYPE=postgres
+      - CHAT_STORAGE_URI=postgres://postgres:password@postgres:5432/whatsapp_chat?sslmode=disable
+      - CHAT_STORAGE_ENABLE_FOREIGN_KEYS=true
+      - CHAT_STORAGE_ENABLE_WAL=true
+      
+      # WhatsApp Settings
+      - WHATSAPP_AUTO_REPLY=
+      - WHATSAPP_AUTO_MARK_READ=false
+      - WHATSAPP_WEBHOOK=
+      - WHATSAPP_WEBHOOK_SECRET=secret
+      - WHATSAPP_ACCOUNT_VALIDATION=true
+      
+      # Session Management
+      - SESSION_BACKUP_ENABLED=true
+      - SESSION_BACKUP_INTERVAL=300
+      - SESSION_BACKUP_RETENTION=7
+      - SESSION_AUTO_RESTORE=true
+      - SESSION_HEALTH_CHECK_INTERVAL=60
+      
+      # Redis Cache (Upstash Redis)
+      - REDIS_ENABLED=true
+      - REDIS_HOST=modern-mantis-13814.upstash.io
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=ATX2AAIjcDEyYzY5OGExZGE3Njc0NTJlODk2MDgxYmI3YzE3YTE3ZnAxMA
+      - REDIS_DB=0
+      - REDIS_PREFIX=whatsapp
+      - REDIS_URL=rediss://:ATX2AAIjcDEyYzY5OGExZGE3Njc0NTJlODk2MDgxYmI3YzE3YTE3ZnAxMA@modern-mantis-13814.upstash.io:6379
+      
+      # File Paths
+      - PATH_QR_CODE=statics/qrcode
+      - PATH_SEND_ITEMS=statics/senditems
+      - PATH_MEDIA=statics/media
+      - PATH_STORAGES=storages
+      
+      # Logging
+      - WHATSAPP_LOG_LEVEL=ERROR
+      
+      # File Size Limits (in bytes)
+      - WHATSAPP_SETTING_MAX_IMAGE_SIZE=20000000
+      - WHATSAPP_SETTING_MAX_FILE_SIZE=50000000
+      - WHATSAPP_SETTING_MAX_VIDEO_SIZE=100000000
+      - WHATSAPP_SETTING_MAX_DOWNLOAD_SIZE=500000000
+      
+      # Cloud Backup Configuration
+      - BACKUP_ENABLED=true
+      - BACKUP_PROVIDER=b2
+      - BACKUP_BUCKET=whatsapp-backups
+      - BACKUP_REGION=us-east-1
+      - BACKUP_PREFIX=whatsapp-backups
+      - BACKUP_RETENTION_DAYS=30
+      - BACKUP_SCHEDULE_ENABLED=true
+      - BACKUP_SCHEDULE_CRON=0 2 * * *
+      
+      # Backblaze B2 Configuration
+      - B2_KEY_ID=your_b2_key_id_here
+      - B2_APPLICATION_KEY=your_b2_application_key_here
+    volumes:
+      - whatsapp_storage:/app/storages
+      - whatsapp_statics:/app/statics
+      - whatsapp_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - whatsapp_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/app/devices"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: whatsapp_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      whatsapp_api:
+        condition: service_healthy
+    networks:
+      - whatsapp_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: whatsapp_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    depends_on:
+      - whatsapp_api
+    networks:
+      - whatsapp_network
+    profiles:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: whatsapp_grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: grafana_admin_2024
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - grafana_provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - whatsapp_network
+    profiles:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Database Initialization Service
+  db_init:
+    image: postgres:15-alpine
+    container_name: whatsapp_db_init
+    restart: "no"
+    environment:
+      POSTGRES_DB: whatsapp_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: postgres
+    volumes:
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - whatsapp_network
+    profiles:
+      - setup
+
+volumes:
+  postgres_data:
+    driver: local
+  # redis_data:
+  #   driver: local
+  whatsapp_storage:
+    driver: local
+  whatsapp_statics:
+    driver: local
+  whatsapp_logs:
+    driver: local
+  nginx_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  grafana_provisioning:
+    driver: local
+
+networks:
+  whatsapp_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

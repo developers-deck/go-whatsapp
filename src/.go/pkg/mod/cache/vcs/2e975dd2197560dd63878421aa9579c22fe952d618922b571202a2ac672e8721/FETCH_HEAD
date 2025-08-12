@@ -1,1 +1,7 @@
-353276a841e232e41e0f76e7a61fe0e5d1f92cf1		tag 'v0.17.0' of https://go.googlesource.com/term
+a79de5458b56c188f4fc267a58014ac25fec956a	not-for-merge	branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/term
+03fcf44c2211dcd5eb77510b5f7c1fb02d6ded50	not-for-merge	branch 'internal-branch.go1.18-vendor' of https://go.googlesource.com/term
+e5f449aeb1717c7a4156811d5d65510fee9d1530	not-for-merge	branch 'internal-branch.go1.19-vendor' of https://go.googlesource.com/term
+f72a2d8d642ddf1481474d80c4e12bb68d1702b9	not-for-merge	branch 'internal-branch.go1.20-vendor' of https://go.googlesource.com/term
+edd9fb7f4aabf5aa4c7bca2146907778a2af0321	not-for-merge	branch 'internal-branch.go1.21-vendor' of https://go.googlesource.com/term
+a35244d18d7756b12deca31a518c0fa1327d050a	not-for-merge	branch 'master' of https://go.googlesource.com/term
+c955d0b553c8bdbd6b706f42bc6fea84ea58a6e1	not-for-merge	branch 'tmp.crypto-ssh-terminal' of https://go.googlesource.com/term

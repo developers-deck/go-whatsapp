@@ -1,0 +1,13 @@
+ed752295db8857b3a7f36c3f57e38509cadff471	not-for-merge	branch 'internal-branch.go1.16-vendor' of https://go.googlesource.com/sys
+b0526f3d87448f0401ea3f7f3a81aa9e6ab4804d	not-for-merge	branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/sys
+b874c991c1a50803422b257fb721b0b2dee3cf72	not-for-merge	branch 'internal-branch.go1.18-vendor' of https://go.googlesource.com/sys
+6c1b26c55098eae66ce95ab7c3712ab6cbfff2b7	not-for-merge	branch 'internal-branch.go1.19-vendor' of https://go.googlesource.com/sys
+3ca3b18c8b9bb09620854907cd3ea668c5bc6b52	not-for-merge	branch 'internal-branch.go1.20-vendor' of https://go.googlesource.com/sys
+a1a9c4b846b3a485ba94fede5b50579c7f432759	not-for-merge	branch 'internal-branch.go1.21-vendor' of https://go.googlesource.com/sys
+5b936e1f126baa13682eff91c2e4d5d9e3a0b71d	not-for-merge	branch 'master' of https://go.googlesource.com/sys
+98c5dad5d1a0e8a73845ecc8897d0bd56586511d	not-for-merge	branch 'release-branch.go1.11' of https://go.googlesource.com/sys
+3b5209105503162ded1863c307ac66fec31120dd	not-for-merge	branch 'release-branch.go1.12' of https://go.googlesource.com/sys
+fde4db37ae7ad8191b03d30d27f258b5291ae4e3	not-for-merge	branch 'release-branch.go1.13' of https://go.googlesource.com/sys
+9e5cf931a04b8d04b671ad42d4d00d66a0ca00e8	not-for-merge	branch 'release-branch.go1.14-cmd' of https://go.googlesource.com/sys
+915c9c3d4ccf72b2ceac5e8303d722b16b699366	not-for-merge	branch 'release-branch.go1.14-std' of https://go.googlesource.com/sys
+bc7a7d42d5c30f4d0fe808715c002826ce2c624e	not-for-merge	branch 'release-branch.go1.15' of https://go.googlesource.com/sys

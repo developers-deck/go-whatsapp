@@ -11,3 +11,12 @@ storages
 .env
 bin
 dist
+node_modules/
+coverage/
+*.log
+.env.local
+.env.production.local
+.env.test.local
+__pycache__/
+*.pyc
+.md

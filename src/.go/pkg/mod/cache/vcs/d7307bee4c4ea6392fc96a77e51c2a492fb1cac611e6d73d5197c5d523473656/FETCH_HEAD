@@ -1,1 +1,5 @@
-913fb63af28f446cd10c684ee847b5606cf328f7		tag 'v0.10.0' of https://go.googlesource.com/sync
+036812b2e83c0ddf193dd5a34e034151da389d09	not-for-merge	branch 'internal-branch.go1.18-vendor' of https://go.googlesource.com/sync
+0976fa681c295de5355f7a4d968b56cb9da8a76b	not-for-merge	branch 'internal-branch.go1.19-vendor' of https://go.googlesource.com/sync
+8fcdb60fdcc0539c5e357b2308249e4e752147f1	not-for-merge	branch 'internal-branch.go1.20-vendor' of https://go.googlesource.com/sync
+93782cc822b6b554cb7df40332fd010f0473cbc8	not-for-merge	branch 'internal-branch.go1.21-vendor' of https://go.googlesource.com/sync
+7fad2c9213e0821bd78435a9c106806f2fc383f1	not-for-merge	branch 'master' of https://go.googlesource.com/sync

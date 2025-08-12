@@ -1,0 +1,69 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - gochecknoglobals
+    - testpackage
+    - paralleltest
+    - nolintlint
+    - varnamelen
+    - exhaustruct
+    - nonamedreturns
+    - depguard
+    - mnd
+    - copyloopvar
+    - intrange
+  settings:
+    gocritic:
+      disabled-checks:
+        - deferInLoop
+        - importShadow
+        - sloppyReassign
+        - unnamedResult
+        - whyNoLint
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+    govet:
+      disable:
+        - fieldalignment
+        - shadow
+      enable-all: true
+    lll:
+      line-length: 119
+    revive:
+      rules:
+        - name: indent-error-flow
+        - name: use-any
+  exclusions:
+    generated: lax
+    presets:
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - lll
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
