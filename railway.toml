@@ -1,0 +1,13 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+startCommand = "./whatsapp-api rest"
+healthcheckPath = "/app/devices"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[deploy.envs]
+APP_PORT = "3000"
+APP_DEBUG = "false"
