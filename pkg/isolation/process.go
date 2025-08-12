@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,12 +43,12 @@ type IsolatedProcess struct {
 type ProcessStatus string
 
 const (
-	ProcessStatusStopped ProcessStatus = "stopped"
+	ProcessStatusStopped  ProcessStatus = "stopped"
 	ProcessStatusStarting ProcessStatus = "starting"
-	ProcessStatusRunning ProcessStatus = "running"
+	ProcessStatusRunning  ProcessStatus = "running"
 	ProcessStatusStopping ProcessStatus = "stopping"
-	ProcessStatusError   ProcessStatus = "error"
-	ProcessStatusCrashed ProcessStatus = "crashed"
+	ProcessStatusError    ProcessStatus = "error"
+	ProcessStatusCrashed  ProcessStatus = "crashed"
 )
 
 type ResourceLimits struct {
@@ -60,10 +59,10 @@ type ResourceLimits struct {
 }
 
 type ProcessMonitoring struct {
-	CPUUsage    float64   `json:"cpu_usage"`
-	MemoryUsage int64     `json:"memory_usage_mb"`
-	LastCheck   time.Time `json:"last_check"`
-	Restarts    int       `json:"restarts"`
+	CPUUsage    float64       `json:"cpu_usage"`
+	MemoryUsage int64         `json:"memory_usage_mb"`
+	LastCheck   time.Time     `json:"last_check"`
+	Restarts    int           `json:"restarts"`
 	Uptime      time.Duration `json:"uptime"`
 }
 
@@ -80,7 +79,7 @@ type IsolationConfig struct {
 
 func NewProcessIsolationManager(config IsolationConfig) *ProcessIsolationManager {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	pim := &ProcessIsolationManager{
 		processes: make(map[string]*IsolatedProcess),
 		ctx:       ctx,
@@ -118,14 +117,14 @@ func (pim *ProcessIsolationManager) CreateIsolatedProcess(id, name, command stri
 	}
 
 	process := &IsolatedProcess{
-		ID:         id,
-		Name:       name,
-		Command:    command,
-		Args:       args,
-		WorkingDir: workingDir,
+		ID:          id,
+		Name:        name,
+		Command:     command,
+		Args:        args,
+		WorkingDir:  workingDir,
 		Environment: make(map[string]string),
-		Status:     ProcessStatusStopped,
-		LogPath:    filepath.Join(logsDir, "process.log"),
+		Status:      ProcessStatusStopped,
+		LogPath:     filepath.Join(logsDir, "process.log"),
 		Resources: ResourceLimits{
 			MaxMemoryMB: config.DefaultMemoryLimit,
 			MaxCPU:      config.DefaultCPULimit,
@@ -362,27 +361,27 @@ func (pim *ProcessIsolationManager) applyResourceLimits(cmd *exec.Cmd, limits Re
 }
 
 func (pim *ProcessIsolationManager) applyUnixResourceLimits(cmd *exec.Cmd, limits ResourceLimits) error {
-	// Set process priority
+	// Set process priority (Unix/Linux specific)
 	if limits.Priority != 0 {
-		cmd.SysProcAttr = &syscall.SysProcAttr{
-			CreationFlags: syscall.CREATE_NEW_PROCESS_GROUP,
-		}
+		// On Unix systems, we can set process priority using Nice
+		// Note: This is a simplified implementation
+		logrus.Debugf("[ISOLATION] Setting process priority to: %d", limits.Priority)
 	}
 
 	// Memory and CPU limits would typically be implemented using cgroups
 	// For simplicity, we'll just log the limits
-	logrus.Debugf("[ISOLATION] Applied Unix resource limits: Memory=%dMB, CPU=%.1f%%", 
+	logrus.Debugf("[ISOLATION] Applied Unix resource limits: Memory=%dMB, CPU=%.1f%%",
 		limits.MaxMemoryMB, limits.MaxCPU)
-	
+
 	return nil
 }
 
 func (pim *ProcessIsolationManager) applyWindowsResourceLimits(cmd *exec.Cmd, limits ResourceLimits) error {
 	// Windows-specific resource limits would be implemented using Job Objects
 	// For simplicity, we'll just log the limits
-	logrus.Debugf("[ISOLATION] Applied Windows resource limits: Memory=%dMB, CPU=%.1f%%", 
+	logrus.Debugf("[ISOLATION] Applied Windows resource limits: Memory=%dMB, CPU=%.1f%%",
 		limits.MaxMemoryMB, limits.MaxCPU)
-	
+
 	return nil
 }
 
@@ -391,7 +390,7 @@ func (pim *ProcessIsolationManager) monitorProcess(process *IsolatedProcess, cmd
 
 	// Wait for process to exit
 	err := cmd.Wait()
-	
+
 	process.mutex.Lock()
 	if process.Status == ProcessStatusStopping {
 		process.Status = ProcessStatusStopped
@@ -435,11 +434,11 @@ func (pim *ProcessIsolationManager) updateProcessMetrics() {
 		if process.Status == ProcessStatusRunning && process.PID > 0 {
 			// Update uptime
 			process.Monitoring.Uptime = time.Since(process.StartedAt)
-			
+
 			// In a real implementation, you would get actual CPU and memory usage
 			// For now, we'll just update the last check time
 			process.Monitoring.LastCheck = time.Now()
-			
+
 			// Check if process is still alive
 			if process.Process != nil {
 				if err := process.Process.Signal(syscall.Signal(0)); err != nil {
@@ -457,14 +456,14 @@ func (pim *ProcessIsolationManager) updateProcessMetrics() {
 // Stop gracefully stops the process isolation manager
 func (pim *ProcessIsolationManager) Stop() {
 	logrus.Info("[ISOLATION] Stopping process isolation manager...")
-	
+
 	// Stop all running processes
 	for _, process := range pim.processes {
 		if process.Status == ProcessStatusRunning {
 			pim.StopProcess(process.ID)
 		}
 	}
-	
+
 	pim.cancel()
 	logrus.Info("[ISOLATION] Process isolation manager stopped")
 }

@@ -9,6 +9,11 @@ main.exe
 src/pkged.go
 storages
 .env
+.claude
+.cursor/rules
+.github
+.go
+.vscode
 bin
 dist
 node_modules/
